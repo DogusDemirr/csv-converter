@@ -22,6 +22,7 @@ describe('JSON formatter and minifier', () => {
  });
  it.each(['json-formatter', 'json-minifier'] as const)('%s rejects invalid JSON and excessive depth', async id => { await expect(runTool(id, '{bad}')).rejects.toThrow('json'); await expect(runTool(id, '['.repeat(102) + '0' + ']'.repeat(102))).rejects.toThrow('limits'); });
  it('formats and minifies', async () => { expect((await runTool('json-formatter', '{"a":1}')).text).toBe('{\n  "a": 1\n}'); expect((await runTool('json-minifier', ' { "a": 1 } ')).text).toBe('{"a":1}'); });
+ it.each(['json-formatter', 'json-minifier', 'json-to-csv'] as const)('%s rejects unsafe integers and numeric overflow', async id => { await expect(runTool(id, '[{"n":9007199254740993}]')).rejects.toThrow('number'); await expect(runTool(id, '[{"n":1e400}]')).rejects.toThrow('number'); });
 });
 describe('JSON to CSV', () => {
  it('unions fields, quotes nested text and preserves Unicode', async () => {
@@ -61,4 +62,4 @@ describe('Excel to CSV and JSON', () => {
  it('rejects duplicate headers for JSON', async () => { await expect(runTool('excel-to-json','',{},await xlsx([['a','a'],['x','y']]))).rejects.toThrow('headers'); });
  it('rejects excessive declared ZIP expansion before decompression', async () => { const bytes = await xlsx(); const view = new DataView(bytes); for(let i=0;i<bytes.byteLength-46;i++) if(view.getUint32(i,true)===0x02014b50){ view.setUint32(i+24,31*1024*1024,true);break; } expect(() => checkWorkbookZip(bytes)).toThrow('limits'); });
 });
-it.each(['=1','+1','-1','@x',' \t=1','\tfoo','\rbar','\nbar'])('escapes dangerous spreadsheet value %s', s => expect(safeCsvCell(s)).toBe(`'${s}`));
+it.each(['=1','+1','-1','@x',' \t=1','\tfoo','\rbar','\nbar','\0=1'])('escapes dangerous spreadsheet value %s', s => expect(safeCsvCell(s)).toBe(`'${s}`));

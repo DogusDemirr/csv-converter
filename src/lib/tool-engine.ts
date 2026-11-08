@@ -23,7 +23,11 @@ function json(text: string): unknown {
  checkStructure(value); return value;
 }
 function cell(value: unknown): string { return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value); }
-export function safeCsvCell(value: string) { return /^[\s\u0000-\u001f\u007f-\u009f\uFEFF]*[=+\-@]/u.test(value) || /^[\t\r\n]/.test(value) ? `'${value}` : value; }
+export function safeCsvCell(value: string) {
+ let index = 0;
+ while (index < value.length && (/\s/u.test(value[index]) || value.charCodeAt(index) < 32 || (value.charCodeAt(index) >= 127 && value.charCodeAt(index) <= 159))) index++;
+ return '=+-@'.includes(value[index] ?? '\uFFFF') || /^[\t\r\n]/.test(value) ? `'${value}` : value;
+}
 function csv(rows: string[][], delimiter: Delimiter = ',') { return '\uFEFF' + Papa.unparse(rows.map(r => r.map(safeCsvCell)), { delimiter: delimiter || ',', newline: '\r\n' }); }
 function records(rows: string[][]) {
  const headers = rows[0];
