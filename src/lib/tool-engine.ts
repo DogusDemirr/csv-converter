@@ -13,6 +13,7 @@ function checkStructure(value: unknown) {
  while (stack.length) {
   const [item, depth] = stack.pop()!;
   if (++nodes > 200000 || depth > 100) throw new Error('limits');
+  if (typeof item === 'number' && (!Number.isFinite(item) || (Number.isInteger(item) && !Number.isSafeInteger(item)))) throw new Error('number');
   if (item && typeof item === 'object') for (const v of Object.values(item)) stack.push([v, depth + 1]);
  }
 }
@@ -22,7 +23,7 @@ function json(text: string): unknown {
  checkStructure(value); return value;
 }
 function cell(value: unknown): string { return value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value); }
-export function safeCsvCell(value: string) { return /^[\s\uFEFF]*[=+\-@]/u.test(value) || /^[\t\r\n]/.test(value) ? `'${value}` : value; }
+export function safeCsvCell(value: string) { return /^[\s\u0000-\u001f\u007f-\u009f\uFEFF]*[=+\-@]/u.test(value) || /^[\t\r\n]/.test(value) ? `'${value}` : value; }
 function csv(rows: string[][], delimiter: Delimiter = ',') { return '\uFEFF' + Papa.unparse(rows.map(r => r.map(safeCsvCell)), { delimiter: delimiter || ',', newline: '\r\n' }); }
 function records(rows: string[][]) {
  const headers = rows[0];
@@ -83,7 +84,7 @@ export async function runTool(id: Exclude<ToolId, 'csv-to-excel'>, input: string
     const value = json(input);
     if (!Array.isArray(value) || !value.length || value.some(v => !v || typeof v !== 'object' || Array.isArray(v))) throw new Error('records');
     const headers = [...new Set(value.flatMap(v => Object.keys(v)))];
-    if (!headers.length) throw new Error('headers');
+    if (!headers.length || headers.some(h => !h.trim())) throw new Error('headers');
     if (value.length + 1 > 20000 || headers.length > 1000 || (value.length + 1) * headers.length > 200000) throw new Error('limits');
     const rows = [headers, ...value.map(v => headers.map(h => cell(v[h])))];
     if (rows.some(r => r.some(v => v.length > 32767))) throw new Error('limits');

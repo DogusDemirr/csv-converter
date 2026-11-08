@@ -7,7 +7,7 @@ import ToolWorkbench from '@/components/tool-workbench';
 import Converter from '@/components/converter';
 type Props = { params: Promise<{ locale: string; slug: string }> };
 export const dynamicParams = false;
-export function generateStaticParams() { return tools.map(t => ({ slug: t.id })); }
+export function generateStaticParams() { return ['en', 'tr'].flatMap(locale => tools.map(t => ({ locale, slug: t.id }))); }
 export async function generateMetadata({ params }: Props) {
  const { locale, slug } = await params; const tool = toolById(slug);
  if (!tool || (locale !== 'en' && locale !== 'tr')) notFound();

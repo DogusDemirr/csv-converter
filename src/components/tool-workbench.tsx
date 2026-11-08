@@ -16,9 +16,11 @@ export default function ToolWorkbench({ id, locale }: { id: Exclude<ToolId, 'csv
  function reset() { invalidate(); setInput(''); setFile(null); setOptions({ mode: 'encode', delimiter: '', sheet: 0 }); if (fileInput.current) fileInput.current.value = ''; }
  function run() {
   invalidate(); setBusy(true);
+  const version = revision.current;
   try {
    const w = new Worker(new URL('../lib/tools.worker.ts', import.meta.url)); worker.current = w;
    w.onmessage = ({ data }: MessageEvent<{ result?: Result; error?: string }>) => {
+    if (version !== revision.current) return;
     setBusy(false); if (data.error) setError(data.error);
     else if (data.result) { setResult(data.result); setUrl(URL.createObjectURL(new Blob([data.result.text], { type: data.result.extension === 'json' ? 'application/json;charset=utf-8' : data.result.extension === 'csv' ? 'text/csv;charset=utf-8' : 'text/plain;charset=utf-8' }))); setStatus(en ? 'Done. Your output is ready.' : 'Tamamlandı. Çıktınız hazır.'); }
     w.terminate();

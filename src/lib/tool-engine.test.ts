@@ -30,7 +30,7 @@ describe('JSON to CSV', () => {
  });
  it.each(['null','[]','[1]','[null]','[[]]','{}','broken'])('rejects invalid records %s', async input => { await expect(runTool('json-to-csv', input)).rejects.toThrow(); });
  it('rejects empty headers and excessive records', async () => { await expect(runTool('json-to-csv', '[{}]')).rejects.toThrow('headers'); await expect(runTool('json-to-csv', JSON.stringify(Array.from({ length: 20000 }, () => ({ a: 1 }))))).rejects.toThrow('limits'); });
- it('protects header and value formulas, including whitespace prefixes', async () => { const result = await runTool('json-to-csv', '[{"=header":"  =1+1","x":"@SUM(A1)","y":"\t=1+1"}]'); const rows = Papa.parse<string[]>(result.text).data; expect(rows[0][0]).toBe("'=header"); expect(rows[1]).toEqual(["'  =1+1", "'@SUM(A1)", "'\t=1+1"]); });
+ it('protects header and value formulas, including whitespace prefixes', async () => { const result = await runTool('json-to-csv', JSON.stringify([{ '=header': '  =1+1', x: '@SUM(A1)', y: '\t=1+1' }])); const rows = Papa.parse<string[]>(result.text).data; expect(rows[0][0]).toBe("'=header"); expect(rows[1]).toEqual(["'  =1+1", "'@SUM(A1)", "'\t=1+1"]); });
 });
 describe('CSV to JSON', () => {
  it('handles BOM, Turkish, quoted values and leading zero strings', async () => { const r = await runTool('csv-to-json', '\uFEFFad;id\n"Çağrı";001', { delimiter: ';' }); expect(JSON.parse(r.text)).toEqual([{ ad: 'Çağrı', id: '001' }]); });
