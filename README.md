@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# CSV Converter
 
-## Getting Started
+Browser-only CSV to Excel converter. Next.js App Router, TypeScript strict, Tailwind, Papa Parse and ExcelJS.
 
-First, run the development server:
+## Start
 
-```bash
+```sh
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000/en or /tr. On restricted Windows PowerShell use npm.cmd and npx.cmd.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sh
+npm run lint
+npx tsc --noEmit
+npm run test
+npm run build
+```
 
-## Learn More
+Production: npm run build, then npm run start. Configure NEXT_PUBLIC_SITE_URL with the real production origin before building; see .env.example.
 
-To learn more about Next.js, take a look at the following resources:
+Files stay in a browser worker. No upload endpoints, analytics, database or authentication. All XLSX values are text to preserve leading zeros and prevent formula injection. Limits: 5 MiB, 20,000 total rows, 200,000 cells, 1,000 columns and 32,767 characters/cell. Empty rows are skipped; the first row is styled as a header. CR line endings may normalize to LF.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See PHASE1_REPORT.md for implementation details and verification limits.
