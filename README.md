@@ -25,3 +25,11 @@ Production: npm run build, then npm run start. Configure NEXT_PUBLIC_SITE_URL wi
 Files stay in a browser worker. No upload endpoints, analytics, database or authentication. All XLSX values are text to preserve leading zeros and prevent formula injection. Limits: 5 MiB, 20,000 total rows, 200,000 cells, 1,000 columns and 32,767 characters/cell. Empty rows are skipped; the first row is styled as a header. CR line endings may normalize to LF.
 
 See PHASE1_REPORT.md for implementation details and verification limits.
+
+## Phase 2 — Online Tools
+
+The homepage now includes search, category filters and nine active tools. New tools: JSON Formatter & Validator, JSON Minifier, JSON to CSV, CSV to JSON, Excel to CSV, Excel to JSON, Base64 Encode/Decode and JWT Decoder.
+
+Each tool has /en/tools/{slug} and /tr/tools/{slug} pages. The original CSV to Excel remains available on /en and /tr at #converter, plus /tools/csv-to-excel pages. JWT decoding does not verify a token. XLSX formulas are not calculated; only cached results are exported.
+
+No new dependencies or backend endpoints were added. See PHASE2_REPORT.md for routes, security rules, 89 passing tests and browser verification limits.
