@@ -1,0 +1,7 @@
+'use client';
+import Link from 'next/link';
+import type { Locale } from '@/lib/i18n';
+export function PlatformHeader({ locale, path = '' }: { locale: Locale; path?: string }) {
+ return <><a className="skip" href="#main">{locale === 'en' ? 'Skip to content' : 'İçeriğe geç'}</a><header className="header wrap"><Link className="brand" href={`/${locale}`}><span className="logo">▦</span>online<span className="brand-light">tools</span><span className="brand-dot">.</span></Link><nav aria-label={locale === 'en' ? 'Main navigation' : 'Ana gezinme'}><Link href={`/${locale}#all-tools`}>{locale === 'en' ? 'Explore tools' : 'Araçları keşfet'}</Link></nav><div className="header-actions"><Link className="language" href={`/${locale === 'en' ? 'tr' : 'en'}${path}`} lang={locale === 'en' ? 'tr' : 'en'}>{locale === 'en' ? 'TR' : 'EN'} ↗</Link><button className="theme" aria-label={locale === 'en' ? 'Toggle theme' : 'Temayı değiştir'} onClick={() => { const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = theme; try { localStorage.setItem('theme', theme); } catch {} }}>◐</button></div></header></>;
+}
+export function PlatformFooter({ locale }: { locale: Locale }) { return <footer className="footer wrap"><Link className="brand" href={`/${locale}`}>▦ onlinetools.</Link><p>{locale === 'en' ? 'Useful tools. Your data stays yours.' : 'Kullanışlı araçlar. Verileriniz size ait.'}</p><span>{locale === 'en' ? 'Free · Private · No account' : 'Ücretsiz · Gizli · Üyelik yok'}</span></footer>; }
