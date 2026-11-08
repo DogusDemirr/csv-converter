@@ -1,5 +1,7 @@
 import ExcelJS from 'exceljs';
+import { validateExportRows } from './limits';
 export async function exportExcel(rows: string[][]) {
+  validateExportRows(rows);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('CSV data');
   // Strings are never formula objects: preserve data without executing it.

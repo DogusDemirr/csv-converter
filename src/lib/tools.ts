@@ -1,4 +1,5 @@
 import type { Locale } from './i18n';
+import { isXlsxImport } from './security-policy';
 export type Category = 'developer' | 'converters' | 'text' | 'calculators';
 export const categories: Record<Category, [string, string]> = { developer: ['JSON & Developer Tools', 'JSON ve Geliştirici Araçları'], converters: ['File & Data Converters', 'Dosya ve Veri Dönüştürücüler'], text: ['Text Tools', 'Metin Araçları'], calculators: ['Calculators', 'Hesaplayıcılar'] };
 const definitions = [
@@ -13,6 +14,7 @@ const definitions = [
  ['csv-to-excel', 'converters', '▦', 'CSV to Excel', 'CSV → Excel', 'Create a formatted XLSX spreadsheet from a UTF-8 CSV without uploading files.', 'Dosya yüklemeden UTF-8 CSV verilerinden biçimlendirilmiş XLSX oluşturun.', 'Prepare a spreadsheet with frozen headers. All values remain text to preserve leading zeros and prevent formula execution.', 'Sabit başlıklı bir tablo hazırlayın. Baştaki sıfırları korumak ve formül çalışmasını engellemek için değerler metin kalır.'],
 ] as const;
 export type ToolId = typeof definitions[number][0];
-export const tools = definitions.map(([id, category, icon, en, tr, descEn, descTr, useEn, useTr]) => ({ id, category, icon, name: { en, tr }, description: { en: descEn, tr: descTr }, usage: { en: useEn, tr: useTr } }));
-export function toolById(id: string) { return tools.find(t => t.id === id); }
+export const allTools = definitions.map(([id, category, icon, en, tr, descEn, descTr, useEn, useTr]) => ({ id, category, icon, name: { en, tr }, description: { en: descEn, tr: descTr }, usage: { en: useEn, tr: useTr } }));
+export const tools = allTools.filter(t => !isXlsxImport(t.id));
+export function toolById(id: string) { return allTools.find(t => t.id === id); }
 export const label = (pair: readonly [string, string], locale: Locale) => pair[locale === 'en' ? 0 : 1];

@@ -1,10 +1,15 @@
-'use client';
+﻿'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { Locale } from '@/lib/i18n';
 import type { ToolId } from '@/lib/tools';
 import type { Options, Result } from '@/lib/tool-engine';
 import { errors } from '@/lib/tool-messages';
+import { isXlsxImport, xlsxNotice } from '@/lib/security-policy';
 export default function ToolWorkbench({ id, locale }: { id: Exclude<ToolId, 'csv-to-excel'>; locale: Locale }) {
+ if (isXlsxImport(id)) return <p className="notice" role="status">{xlsxNotice[locale]}</p>;
+ return <EnabledWorkbench id={id} locale={locale}/>;
+}
+function EnabledWorkbench({ id, locale }: { id: Exclude<ToolId, 'csv-to-excel'>; locale: Locale }) {
  const en = locale === 'en'; const excel = id.startsWith('excel-');
  const [input, setInput] = useState(''); const [file, setFile] = useState<File | null>(null); const [result, setResult] = useState<Result | null>(null);
  const [options, setOptions] = useState<Options>({ mode: 'encode', delimiter: '', sheet: 0 });
@@ -37,8 +42,8 @@ export default function ToolWorkbench({ id, locale }: { id: Exclude<ToolId, 'csv
  <div className="work-options">{id === 'base64' && <label>{en ? 'Operation' : 'İşlem'}<select value={options.mode} onChange={e => { invalidate(); setOptions({ ...options, mode: e.target.value as Options['mode'] }); }}><option value="encode">{en ? 'Encode' : 'Kodla'}</option><option value="decode">{en ? 'Decode' : 'Çöz'}</option></select></label>}
  {['json-to-csv', 'csv-to-json', 'excel-to-csv'].includes(id) && <label>{en ? 'Delimiter' : 'Ayraç'}<select value={options.delimiter} onChange={e => { invalidate(); setOptions({ ...options, delimiter: e.target.value as Options['delimiter'] }); }}><option value="">{id === 'csv-to-json' ? en ? 'Auto-detect' : 'Otomatik algıla' : en ? 'Comma (default)' : 'Virgül (varsayılan)'}</option><option value=",">{en ? 'Comma' : 'Virgül'} (,)</option><option value=";">{en ? 'Semicolon' : 'Noktalı virgül'} (;)</option><option value={'\t'}>{en ? 'Tab' : 'Sekme'}</option></select></label>}
  {excel && <label>{en ? 'Worksheet (1-based)' : 'Çalışma sayfası (1’den başlar)'}<input type="number" min="1" max="100" value={(options.sheet ?? 0) + 1} onChange={e => { invalidate(); setOptions({ ...options, sheet: Math.max(0, Number(e.target.value) - 1) }); }}/></label>}</div>
- <div className="editor-grid"><div><div className="editor-heading"><label htmlFor="tool-input">{en ? 'Input' : 'Girdi'}</label><span>{en ? 'Max 5 MB · processed locally' : 'En fazla 5 MB · yerel işlem'}</span></div>
- {!['base64', 'jwt-decoder'].includes(id) && <label className="file-picker">{en ? 'Choose file' : 'Dosya seç'} ({accept})<input ref={fileInput} type="file" accept={accept} onChange={e => { const f = e.target.files?.[0] ?? null; invalidate(); setFile(f); setOptions({ ...options, sheet: 0 }); e.target.value = ''; }}/></label>}
+ <div className="editor-grid"><div><div className="editor-heading"><label htmlFor={excel ? 'tool-file' : 'tool-input'}>{en ? 'Input' : 'Girdi'}</label><span>{en ? 'Max 5 MB · processed locally' : 'En fazla 5 MB · yerel işlem'}</span></div>
+ {!['base64', 'jwt-decoder'].includes(id) && <label className="file-picker">{en ? 'Choose file' : 'Dosya seç'} ({accept})<input id="tool-file" ref={fileInput} type="file" accept={accept} onChange={e => { const f = e.target.files?.[0] ?? null; invalidate(); setFile(f); setOptions({ ...options, sheet: 0 }); e.target.value = ''; }}/></label>}
  {file && <p className="selected-file">{file.name} · {(file.size / 1024).toFixed(1)} KB <button className="secondary" onClick={() => { invalidate(); setFile(null); }}>{en ? 'Remove' : 'Kaldır'}</button></p>}
  {!excel ? <textarea id="tool-input" spellCheck={false} value={input} disabled={!!file} onChange={e => { invalidate(); setInput(e.target.value); }} placeholder={en ? 'Paste your data here…' : 'Verilerinizi buraya yapıştırın…'}/> : <div id="tool-input" className="excel-placeholder">▦<p>{en ? 'Select an XLSX file, choose a worksheet number and convert.' : 'XLSX dosyası seçin, çalışma sayfası numarasını belirleyin ve dönüştürün.'}</p></div>}
  </div><div><div className="editor-heading"><label htmlFor="tool-output">{en ? 'Output preview' : 'Çıktı önizlemesi'}</label><span>{en ? 'First 50,000 characters' : 'İlk 50.000 karakter'}</span></div><textarea id="tool-output" readOnly spellCheck={false} value={result?.text.slice(0, 50000) ?? ''} placeholder={en ? 'Your result will appear here.' : 'Sonucunuz burada görünecek.'}/>{result?.sheets && <p className="sample">{en ? 'Worksheets' : 'Çalışma sayfaları'}: {result.sheets.map((name, i) => `${i + 1}. ${name}`).join(' · ')}</p>}<p className="sample">{en ? 'Copy and download include the complete output.' : 'Kopyalama ve indirme tam çıktıyı içerir.'}</p></div></div>

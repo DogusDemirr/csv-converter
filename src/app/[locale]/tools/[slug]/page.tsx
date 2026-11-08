@@ -1,21 +1,24 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { tools, toolById } from '@/lib/tools';
+import { allTools, toolById } from '@/lib/tools';
+import { isXlsxImport, xlsxNotice } from '@/lib/security-policy';
 import { pageMetadata } from '@/lib/tool-metadata';
 import { PlatformHeader, PlatformFooter } from '@/components/platform-shell';
 import ToolWorkbench from '@/components/tool-workbench';
 import Converter from '@/components/converter';
 type Props = { params: Promise<{ locale: string; slug: string }> };
 export const dynamicParams = false;
-export function generateStaticParams() { return ['en', 'tr'].flatMap(locale => tools.map(t => ({ locale, slug: t.id }))); }
+export function generateStaticParams() { return ['en', 'tr'].flatMap(locale => allTools.map(t => ({ locale, slug: t.id }))); }
 export async function generateMetadata({ params }: Props) {
  const { locale, slug } = await params; const tool = toolById(slug);
  if (!tool || (locale !== 'en' && locale !== 'tr')) notFound();
+ if (isXlsxImport(slug)) return { ...pageMetadata(locale, tool.name[locale], xlsxNotice[locale], `/tools/${slug}`), robots: { index: false, follow: true } };
  return pageMetadata(locale, tool.name[locale], tool.description[locale], `/tools/${slug}`);
 }
 export default async function Page({ params }: Props) {
  const { locale, slug } = await params; const tool = toolById(slug);
  if (!tool || (locale !== 'en' && locale !== 'tr')) notFound(); const en = locale === 'en';
+ if (isXlsxImport(slug)) return <><PlatformHeader locale={locale} path={`/tools/${slug}`}/><main id="main" className="tool-hero wrap"><h1>{tool.name[locale]}</h1><p role="status" className="notice">{xlsxNotice[locale]}</p><Link className="primary" href={`/${locale}`}>{en ? 'Browse available tools' : 'Kullanılabilir araçlara dön'}</Link></main><PlatformFooter locale={locale}/></>;
  const file = slug.startsWith('excel-'); const csvExcel = slug === 'csv-to-excel';
  return <><PlatformHeader locale={locale} path={`/tools/${slug}`}/><main id="main"><section className="tool-hero wrap"><Link className="breadcrumb" href={`/${locale}#all-tools`}>← {en ? 'All tools' : 'Tüm araçlar'}</Link><div className="eyebrow">{en ? 'FREE · PRIVATE · IN YOUR BROWSER' : 'ÜCRETSİZ · GİZLİ · TARAYICINIZDA'}</div><h1>{tool.name[locale]}</h1><p>{tool.description[locale]}</p></section>{!csvExcel && <div className="wrap"><ToolWorkbench id={tool.id as Exclude<typeof tool.id, 'csv-to-excel'>} locale={locale}/></div>}</main>{csvExcel && <div className="embedded-converter"><Converter locale={locale}/></div>}
  <section className="tool-content wrap"><div><div className="section-label">{en ? 'Made for your workflow' : 'İş akışınız için'}</div><h2>{en ? `When to use ${tool.name.en}` : `${tool.name.tr} kullanım alanları`}</h2><p>{tool.usage[locale]}</p></div><div><h2>{en ? 'How to use' : 'Nasıl kullanılır?'}</h2><ol><li>{file ? en ? 'Choose an XLSX file and enter the worksheet number (starting at 1).' : 'XLSX dosyası seçin ve çalışma sayfası numarasını girin (1’den başlar).' : csvExcel ? en ? 'Select or drop a UTF-8 CSV file.' : 'UTF-8 CSV dosyanızı seçin veya sürükleyin.' : en ? 'Paste your input or choose a supported text file when available.' : 'Girdiyi yapıştırın veya varsa desteklenen metin dosyasını seçin.'}</li><li>{en ? 'Choose the available options, run the tool and review the output. Errors appear without sending your data anywhere.' : 'Seçenekleri belirleyin, aracı çalıştırın ve çıktıyı inceleyin. Hatalar veriniz gönderilmeden gösterilir.'}</li><li>{csvExcel ? en ? 'Download the XLSX file. Clear the file to start again.' : 'XLSX dosyasını indirin. Yeniden başlamak için dosyayı temizleyin.' : en ? 'Copy the full result or download it. Clear / Reset also cancels processing.' : 'Tam sonucu kopyalayın veya indirin. Temizle / Sıfırla işlemi devam eden dönüşümü de iptal eder.'}</li></ol></div></section>
