@@ -1,6 +1,10 @@
-﻿# CSV Converter
+﻿# Nexutool
 
 Browser-only developer tools platform: Next.js App Router, TypeScript strict, Tailwind, Papa Parse and excel-builder-vanilla. Twelve tools are active; XLSX import is disabled.
+
+## Nexutool branding and pre-launch
+
+Smart Tools. Simple Solutions. EN/TR branding uses local SVG and PNG/ICO assets. The repository/package remains csv-converter. See PHASE6B_REPORT.md and DEPLOYMENT.md for the current NO-GO decision and future Cloudflare Pages Free/GitHub settings. `npm run build:pages` defaults safely to an unindexed preview unless explicitly configured for the approved production branch. No deployment was performed.
 
 ## Current release preparation
 

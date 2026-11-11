@@ -1,6 +1,8 @@
 ﻿'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { brand } from '@/lib/brand';
+import { BrandMark } from './brand-mark';
 import { copy, type Locale } from '@/lib/i18n';
 import type { Delimiter } from '@/lib/csv';
 import { validateFile } from '@/lib/file-validation';
@@ -44,9 +46,9 @@ export default function Converter({ locale, embedded = false }: { locale: Locale
  if (embedded) return converterPanel;
  return <>
   <a className="skip" href="#converter">{t.tool}</a>
-  <header className="header wrap"><Link href={`/${locale}`} className="brand"><span className="logo">▦</span>csv<span className="brand-light">converter</span><span className="brand-dot">.</span></Link><nav aria-label={locale === 'en' ? 'Main navigation' : 'Ana gezinme'}><a href="#how">{t.nav}</a><a href="#faq">{t.faq}</a></nav><div className="header-actions"><Link href={locale === 'en' ? '/tr' : '/en'} lang={locale === 'en' ? 'tr' : 'en'} className="language">{locale === 'en' ? 'TR' : 'EN'} ↗</Link><button className="theme" aria-label={locale === 'en' ? 'Toggle color theme' : 'Renk temasını değiştir'} onClick={() => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {} }}>◐</button></div></header>
+  <header className="header wrap"><Link href={`/${locale}`} className="brand"><BrandMark/>{brand.name}</Link><nav aria-label={locale === 'en' ? 'Main navigation' : 'Ana gezinme'}><a href="#how">{t.nav}</a><a href="#faq">{t.faq}</a></nav><div className="header-actions"><Link href={locale === 'en' ? '/tr' : '/en'} lang={locale === 'en' ? 'tr' : 'en'} className="language">{locale === 'en' ? 'TR' : 'EN'} ↗</Link><button className="theme" aria-label={locale === 'en' ? 'Toggle color theme' : 'Renk temasını değiştir'} onClick={() => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {} }}>◐</button></div></header>
   <main><section className="hero wrap"><div className="eyebrow"><span/> {t.badge}</div><h1>{t.title}<br/><span>{t.accent}</span></h1><p>{t.intro}</p><div className="hero-trust"><span>✓ {t.free}</span><span>✓ .csv → .xlsx</span></div></section>
-  {converterPanel}<section id="how" className="steps wrap"><div className="section-label">{t.nav}</div><h2>{t.stepsTitle}</h2><div className="step-grid">{t.steps.map(([title, text], i) => <article key={title}><span className="step-number">0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section><section id="faq" className="faq wrap"><div><div className="section-label">{t.faq}</div><h2>{t.faqTitle}</h2><p>{t.privacy}</p></div><div>{t.faqs.map(([q, a]) => <details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div></section></main><footer className="footer wrap"><Link href={`/${locale}`} className="brand">▦ csvconverter.</Link><p>{t.footer}</p><span>© 2026 CSV Converter</span></footer>
+  {converterPanel}<section id="how" className="steps wrap"><div className="section-label">{t.nav}</div><h2>{t.stepsTitle}</h2><div className="step-grid">{t.steps.map(([title, text], i) => <article key={title}><span className="step-number">0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section><section id="faq" className="faq wrap"><div><div className="section-label">{t.faq}</div><h2>{t.faqTitle}</h2><p>{t.privacy}</p></div><div>{t.faqs.map(([q, a]) => <details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div></section></main><footer className="footer wrap"><Link href={`/${locale}`} className="brand"><BrandMark/>{brand.name}</Link><p>{t.footer}</p><span>© 2026 Nexutool</span></footer>
  </>;
 }
 

@@ -22,21 +22,21 @@ describe('Production regressions', () => {
   for (const url of ['http://tools.acme.dev', 'https://csvconverter.example', 'https://example.com', 'https://localhost', 'https://tools.acme.dev/path', 'https://user:pass@tools.acme.dev']) expect(() => resolveSiteUrl(url)).toThrow();
  });
  it('disables indexing when production domain is unset', async () => {
-  vi.resetModules(); vi.stubEnv('SITE_URL','');
+  vi.resetModules(); vi.stubEnv('DEPLOYMENT_ENV','production'); vi.stubEnv('SITE_URL','');
   try {
    const { pageMetadata } = await import('./tool-metadata');
    const metadata = pageMetadata('en', 'Test', 'Description'); expect(metadata.robots).toEqual({index:false,follow:false}); expect(metadata.alternates).toBeUndefined();
   } finally { vi.unstubAllEnvs(); vi.resetModules(); }
  });
  it('uses the configured origin for canonical and alternates', async () => {
-  vi.resetModules(); vi.stubEnv('SITE_URL','https://tools.acme.dev');
+  vi.resetModules(); vi.stubEnv('DEPLOYMENT_ENV','production'); vi.stubEnv('SITE_URL','https://tools.acme.dev');
   try {
    const { pageMetadata } = await import('./tool-metadata'); const metadata = pageMetadata('tr','Test','Description','/tools/base64');
    expect(new URL(String(metadata.metadataBase)).origin).toBe('https://tools.acme.dev'); expect(metadata.alternates?.canonical).toBe('/tr/tools/base64'); expect(metadata.robots).toEqual({index:true,follow:true});
   } finally { vi.unstubAllEnvs(); vi.resetModules(); }
  });
  it.each(['', 'https://tools.acme.dev'])('keeps sitemap and robots aligned with SITE_URL=%s', async origin => {
-  vi.resetModules(); vi.stubEnv('SITE_URL',origin);
+  vi.resetModules(); vi.stubEnv('DEPLOYMENT_ENV','production'); vi.stubEnv('SITE_URL',origin);
   try {
    const { default: sitemap } = await import('../app/sitemap'); const { default: robots } = await import('../app/robots');
    const entries = sitemap(); const policy = robots();

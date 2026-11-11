@@ -14,14 +14,14 @@ describe('Final integration and configured SEO', () => {
   }
  });
  it('generates canonical, hreflang, Open Graph and sitemap from configured origin', async () => {
-  vi.stubEnv('SITE_URL','https://tools.acme.dev'); vi.resetModules();
+  vi.stubEnv('DEPLOYMENT_ENV','production'); vi.stubEnv('SITE_URL','https://tools.acme.dev'); vi.resetModules();
   const { pageMetadata } = await import('./tool-metadata'); const { default: sitemap } = await import('../app/sitemap');
   const urls = sitemap().map(entry => entry.url); expect(urls).toHaveLength(26);
   for (const locale of ['en','tr'] as const) for (const tool of tools) {
    const path = `/tools/${tool.id}`; const metadata = pageMetadata(locale,tool.name[locale],tool.description[locale],path);
    expect(metadata.alternates?.canonical).toBe(`/${locale}${path}`);
    expect(metadata.alternates?.languages).toEqual({ en:`/en${path}`,tr:`/tr${path}`,'x-default':`/en${path}` });
-   expect(metadata.openGraph).toMatchObject({url:`https://tools.acme.dev/${locale}${path}`,title:tool.name[locale],description:tool.description[locale]});
+   expect(metadata.openGraph).toMatchObject({url:`https://tools.acme.dev/${locale}${path}`,title:`${tool.name[locale]} | Nexutool`,description:tool.description[locale]});
    expect(urls).toContain(`https://tools.acme.dev/${locale}${path}`);
   }
   expect(urls.some(url => /excel-to-/.test(url))).toBe(false);

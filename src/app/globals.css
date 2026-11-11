@@ -14,3 +14,5 @@
 .example-code{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--border);padding:1rem;border-radius:12px;font-size:.875rem}
 
 .footer nav{display:flex;flex-wrap:wrap;gap:14px;font-size:12px}.footer{flex-wrap:wrap}
+
+.brand-mark{flex:none;margin-right:10px}.brand{gap:0;letter-spacing:-.8px}.footer .brand{white-space:nowrap}
