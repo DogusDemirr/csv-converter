@@ -1,7 +1,7 @@
 import { runTool, type Options } from './tool-engine';
 import { MAX_BYTES } from './limits';
 import { readUtf8 } from './file-validation';
-import type { ToolId } from './tools';
+import type { LegacyToolId as ToolId } from './tools';
 import { requireEnabledTool } from './security-policy';
 self.onmessage = async ({ data }: MessageEvent<{ id: Exclude<ToolId, 'csv-to-excel'>; input: string; file?: File; options: Options }>) => {
  try {

@@ -1,6 +1,6 @@
 ﻿import type { Delimiter } from './csv';
 import { MAX_BYTES } from './limits';
-import type { ToolId } from './tools';
+import type { LegacyToolId as ToolId } from './tools';
 import { requireEnabledTool } from './security-policy';
 export type Options = { mode?: 'encode' | 'decode'; delimiter?: Delimiter; sheet?: number };
 export type Result = { text: string; extension: 'json' | 'csv' | 'txt'; sheets?: string[]; cachedOnly?: boolean };

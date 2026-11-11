@@ -10,14 +10,18 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:report": "playwright show-report",
-    "perf": "node scripts/lighthouse.mjs"
+    "perf": "node scripts/lighthouse.mjs",
+    "test:csharp": "node scripts/check-csharp.mjs",
+    "build:static": "node scripts/build-static.mjs",
+    "build:static:production": "node scripts/build-static.mjs --production"
   },
   "dependencies": {
-    "exceljs": "^4.4.0",
+    "excel-builder-vanilla": "5.3.1",
     "next": "16.4.5",
     "papaparse": "^5.7.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "sql-formatter": "15.9.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.0",
@@ -28,7 +32,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "fflate": "0.8.3",
     "lighthouse": "^13.6.0",
+    "read-excel-file": "9.3.14",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.1.0"

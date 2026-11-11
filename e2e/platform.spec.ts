@@ -1,11 +1,12 @@
 ﻿import { test, expect, type Page } from '@playwright/test';
-import ExcelJS from 'exceljs';
+import { readSheet } from 'read-excel-file/node';
+import { unzipSync, strFromU8 } from 'fflate';
 import { readFile } from 'node:fs/promises';
 import { tools } from '../src/lib/tools';
 const privacyEvidence = new WeakMap<Page, string[]>();
 test.beforeEach(async ({ page }) => {
  const issues: string[] = []; privacyEvidence.set(page, issues);
- page.on('request', r => { if (r.method() !== 'GET') issues.push(`Unexpected ${r.method()} request`); if (/^https?:/.test(r.url()) && !r.url().startsWith('http://127.0.0.1:3100/')) issues.push('External network request'); });
+ page.on('request', r => { if (!['GET','HEAD'].includes(r.method())) issues.push(`Unexpected ${r.method()} request`); if (/^https?:/.test(r.url()) && !r.url().startsWith('http://127.0.0.1:3100/')) issues.push('External network request'); });
  page.on('console', message => { if (/Çağrı|İstanbul|signatureVerified|alg.*none/.test(message.text())) issues.push('Input appeared in browser console'); });
  page.on('pageerror', error => issues.push(error.message));
 });
@@ -18,7 +19,7 @@ test('home search, categories, locale, theme persistence and mobile overflow', a
  await page.goto('/en'); await expect(page.getByRole('heading', { level: 1 })).toContainText('Your everyday tasks');
  await page.getByRole('searchbox').fill('jwt'); await expect(page.locator('#all-tools .tool-card')).toHaveCount(1);
  await page.getByRole('searchbox').fill(''); await page.getByRole('button', {name:'Calculators',exact:true}).click(); await expect(page.getByText('No tools found')).toBeVisible();
- await page.getByRole('button', {name:'Reset filters'}).click(); await expect(page.locator('#all-tools .tool-card')).toHaveCount(7);
+ await page.getByRole('button', {name:'Reset filters'}).click(); await expect(page.locator('#all-tools .tool-card')).toHaveCount(12);
  await page.getByRole('button', {name:'Text Tools',exact:true}).click(); await expect(page.locator('#all-tools .tool-card')).toHaveCount(1);
  await page.getByRole('button', {name:'Toggle theme'}).click(); const theme = await page.locator('html').getAttribute('data-theme'); await page.reload(); await expect(page.locator('html')).toHaveAttribute('data-theme',theme!);
  await page.locator('header').getByRole('link',{name:'TR ↗'}).click(); await expect(page).toHaveURL(/\/tr$/); await expect(page.locator('html')).toHaveAttribute('lang','tr');
@@ -34,7 +35,7 @@ const textCases = [
 ];
 for (const c of textCases) test(`${c.id}: worker, copy, download, reset and error`, async ({page, context, baseURL}) => {
  const leaks: string[] = []; const runtime: string[] = [];
- page.on('request', r => { if (r.method() !== 'GET' || (r.postData() ?? '').includes('Çağrı')) leaks.push(r.url()); }); page.on('pageerror',e=>runtime.push(e.message));
+ page.on('request', r => { if (!['GET','HEAD'].includes(r.method()) || (r.postData() ?? '').includes('Çağrı')) leaks.push(r.url()); }); page.on('pageerror',e=>runtime.push(e.message));
  await context.grantPermissions(['clipboard-read','clipboard-write'], { origin:baseURL! });
  await page.goto(`/en/tools/${c.id}`); await page.locator('#tool-input').fill(c.input); await page.getByRole('button',{name:'Run tool'}).click();
  await expect.poll(async () => (await page.locator('#tool-output').inputValue()).includes(c.expected)).toBe(true);
@@ -54,8 +55,8 @@ test('Base64 decode, XSS is inert, Turkish language keeps the tool',async({page}
 test('CSV to Excel upload, preview, safe binary download and clear',async({page})=>{
  await page.goto('/en/tools/csv-to-excel'); await page.locator('input[type=file]').setInputFiles({name:'Türkçe.csv',mimeType:'text/csv',buffer:Buffer.from('\uFEFFname,value\nÇağrı,=1+1\nİstanbul,001')});
  await expect(page.locator('table')).toContainText('Çağrı'); await page.getByRole('button',{name:'Convert to Excel'}).click();
- const pending = page.waitForEvent('download'); await page.getByRole('link',{name:'Download Excel'}).click(); const d = await pending; const path = await d.path(); const book = new ExcelJS.Workbook(); await book.xlsx.readFile(path!);
- expect(book.worksheets[0].getCell('A2').value).toBe('Çağrı'); expect(book.worksheets[0].getCell('B2').value).toBe('=1+1'); expect(book.worksheets[0].getCell('B2').formula).toBeUndefined();
+ const pending = page.waitForEvent('download'); await page.getByRole('link',{name:'Download Excel'}).click(); const d = await pending; const path = await d.path(); const bytes = await readFile(path!); const sheet = await readSheet(bytes); const xml = strFromU8(unzipSync(bytes)['xl/worksheets/sheet1.xml']);
+ expect(sheet[1][0]).toBe('Çağrı'); expect(sheet[1][1]).toBe('=1+1'); expect(xml).not.toMatch(/<f(?:\s|>)/);
  await page.getByRole('button',{name:'Clear file'}).click(); await expect(page.locator('table')).toHaveCount(0);
 });
 test('empty, oversized and invalid encoding file errors',async({page})=>{

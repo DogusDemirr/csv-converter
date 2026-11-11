@@ -1,6 +1,12 @@
 ﻿# CSV Converter
 
-Browser-only CSV to Excel converter. Next.js App Router, TypeScript strict, Tailwind, Papa Parse and ExcelJS.
+Browser-only developer tools platform: Next.js App Router, TypeScript strict, Tailwind, Papa Parse and excel-builder-vanilla. Twelve tools are active; XLSX import is disabled.
+
+## Current release preparation
+
+Phase 6A replaces ExcelJS with an export-only writer. EN/TR Privacy, Terms and Contact pages are unfinished legal drafts. Production remains blocked by domain, publisher/contact and legal/hosting readiness. See PHASE6A_REPORT.md and DEPLOYMENT.md. The phase sections below are historical snapshots, not current counts or security status.
+
+Static preview: `npm run build:static`. Future production static build: `npm run build:static:production` with a real SITE_URL. Never publish the synthetic SEO test domain.
 
 ## Start
 
@@ -49,8 +55,28 @@ Lighthouse starts a separate production server on port 3200 and Chromium debuggi
 
 Latest results and release blockers are documented in PHASE3_REPORT.md. Unit tests, E2E tests, Lighthouse and audit reports have different scopes; local scores do not guarantee hosting performance or security certification.
 
-## Phase 3.1 — Security status (current)
+## Phase 3.1 — Security status (historical)
 
 XLSX imports (Excel to CSV and Excel to JSON) are temporarily disabled because the current ExcelJS/JSZip load path cannot enforce a reliable decompression resource budget. Existing URLs show a noindex safety notice with no file control; worker and engine calls reject imports before reading file bytes. They are excluded from the active catalog and sitemap. Seven tools remain active, including CSV to Excel export.
 
 Current checks: 90 unit tests and 32 desktop/mobile Chromium E2E tests passed. The lower unit count replaces discontinued import-success cases with fail-closed security cases. Two moderate audit entries remain for the same ExcelJS -> uuid advisory; no force fix or unassessed major upgrade was applied. See PHASE3_1_SECURITY_REPORT.md for the NO-GO production decision, dependency analysis and reopening requirements. The configured sitemap now contains 16 URLs; without SITE_URL it remains empty.
+
+## Phase 5.1 — JSON Diff and C# models
+
+New active routes: /en/tools/json-diff, /tr/tools/json-diff, /en/tools/json-to-csharp and /tr/tools/json-to-csharp. Nine tools are active; both XLSX import tools remain disabled. Configured production sitemap: 20 active URLs. No new npm dependency was added.
+
+JSON Diff ignores object key order and compares arrays by index. C# generation supports nested models/lists, int/long/double, nullable references, optional JsonPropertyName attributes and safe custom names. Models are inferred from samples; fractional numbers use double, not exact decimal semantics.
+
+New tools run in a dedicated worker with a 1 MiB input/output budget and a 5-second lifecycle timeout. See PHASE5_1_REPORT.md for limits, 135 unit tests, 46 Chromium E2E tests and eight compiled C# fixtures. To repeat the Windows .NET compilation check, run npm run test:csharp with an installed SDK/reference pack. Artifacts go to ignored artifacts/csharp/.
+
+## Phase 5.2 — TypeScript and SQL
+
+New EN/TR slugs: json-to-typescript and sql-formatter. Eleven tools are active; configured production sitemap has 24 URLs. TypeScript generation supports interfaces/type aliases, nested models, unions, optional properties and null strategies. Output uses text-node syntax highlighting with a plain-text alternative.
+
+SQL Formatter uses exact-pinned MIT sql-formatter 15.9.0, lazy loaded in a browser worker. T-SQL and general SQL have protected-token checks; no query is executed. Procedures, GO batches and minify are explicitly unavailable. Current results and limitations: PHASE5_2_REPORT.md (173 unit tests, 58 Chromium E2E tests). Existing XLSX imports stay disabled and the previous two dependency audit warnings remain.
+
+## Phase 5.3 — Regex Tester
+
+New routes: /en/tools/regex-tester and /tr/tools/regex-tester. Native JavaScript regex compilation and matching run only in disposable workers, with flag support probes, a 1.5-second job deadline, pattern/text/capture/report caps and explicit zero-length progress handling. Highlighting, named/positional captures, indices, copy, clear/reset and EN/TR are available.
+
+Limits reduce exposure but do not eliminate ReDoS or create a hard CPU/memory sandbox. The 1,000-match limit produces an explicitly partial report. See PHASE5_3_REPORT.md for 194 passing unit tests, 70 Chromium E2E tests and the small controlled ReDoS experiment. Twelve tools are active; the configured sitemap contains 26 active URLs. XLSX imports remain disabled. No new dependency was added.

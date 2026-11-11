@@ -2,8 +2,8 @@
 import Papa from 'papaparse';
 import { runTool, safeCsvCell } from './tool-engine';
 import { MAX_BYTES } from './csv';
-import { tools } from './tools';
-const ids = tools.map(t => t.id).filter(id => id !== 'csv-to-excel');
+import { tools, isLegacyToolId } from './tools';
+const ids = tools.map(t => t.id).filter(isLegacyToolId).filter(id => id !== 'csv-to-excel');
 const token = (value: unknown) => Buffer.from(JSON.stringify(value)).toString('base64url');
 describe('Enabled tools reject empty and oversized input', () => {
  it.each(ids)('%s empty', async id => { await expect(runTool(id, '')).rejects.toThrow('empty'); });

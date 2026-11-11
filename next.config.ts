@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  ...(process.env.STATIC_EXPORT === '1' ? { output: 'export' as const } : {}),
+  ...(process.env.STATIC_EXPORT === '1' ? {} : {
   async headers() {
     return [{ source: '/:path*', headers: [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -9,7 +11,7 @@ const nextConfig: NextConfig = {
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
     ] }];
   },
-  /* config options here */
+  }),
   turbopack: {
     rules: {
       "*.css": {

@@ -1,7 +1,7 @@
 ﻿'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { Locale } from '@/lib/i18n';
-import type { ToolId } from '@/lib/tools';
+import type { LegacyToolId as ToolId } from '@/lib/tools';
 import type { Options, Result } from '@/lib/tool-engine';
 import { errors } from '@/lib/tool-messages';
 import { isXlsxImport, xlsxNotice } from '@/lib/security-policy';

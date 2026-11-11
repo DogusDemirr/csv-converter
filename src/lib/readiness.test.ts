@@ -40,7 +40,7 @@ describe('Production regressions', () => {
   try {
    const { default: sitemap } = await import('../app/sitemap'); const { default: robots } = await import('../app/robots');
    const entries = sitemap(); const policy = robots();
-   expect(entries).toHaveLength(origin ? 16 : 0);
+   expect(entries).toHaveLength(origin ? 26 : 0);
    expect(entries.some(e=>/\/excel-to-(csv|json)$/.test(e.url))).toBe(false);
    if (origin) { expect(policy.sitemap).toBe(`${origin}/sitemap.xml`); expect(entries.every(e=>e.url.startsWith(origin))).toBe(true); expect(entries[0].alternates?.languages?.tr).toBe(`${origin}/tr`); }
    else { expect(policy.rules).toEqual({userAgent:'*',disallow:'/'}); expect(policy.sitemap).toBeUndefined(); }

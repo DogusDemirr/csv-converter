@@ -11,7 +11,7 @@ try {
  browser = await chromium.launch({ headless: true, args: ['--remote-debugging-port=9224'] });
  await mkdir('artifacts', { recursive: true });
  const summaries = [];
- for (const [name, path] of [['home','/en'],['json-formatter','/en/tools/json-formatter']]) {
+ for (const [name, path] of [['home','/en'],...['json-diff','json-to-csharp','json-to-typescript','sql-formatter','regex-tester'].map(id=>[id,`/en/tools/${id}`])]) {
   const result = await lighthouse(`http://127.0.0.1:3200${path}`, { port: 9224, output: ['json','html'], logLevel: 'error', onlyCategories: ['performance','accessibility','best-practices','seo'] });
   if (!result) throw new Error('Lighthouse returned no result.');
   await writeFile(`artifacts/lighthouse-${name}.json`, result.report[0]); await writeFile(`artifacts/lighthouse-${name}.html`, result.report[1]);
